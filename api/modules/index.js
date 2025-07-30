@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(app) {
-  const init = require('./init');
+  // const init = require('./init');
   const globalConfig = require('./globalConfig')(app);
   const session = require('./session')(app);
   const admin = require('./admin')(app);
@@ -18,7 +18,7 @@ module.exports = function(app) {
   const cron = require('./cron')(app)();
 
   return {
-    init,
+    // init,
     globalConfig,
     session,
     admin,
