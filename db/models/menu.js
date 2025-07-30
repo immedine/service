@@ -1,6 +1,9 @@
 'use strict';
 module.exports = function (app, mongoose) {
   const schema = new mongoose.Schema({
+    images: [{
+      type: String
+    }],
     name: {
       type: String,
       required: true
@@ -110,7 +113,7 @@ module.exports = function (app, mongoose) {
     return this.findByIdAndRemove(_id).exec();
   };
 
-  schema.index({ name: 1, categoryRef: 1, restaurantRef: 1 }, { unique: true });
+  schema.index({ name: 1, categoryRef: 1, restaurantRef: 1, status: app.config.contentManagement.menu.active }, { unique: true });
 
   return schema;
 };

@@ -32,8 +32,7 @@ module.exports = function (app, options) {
    * File upload handling middleware
    * @type {Function}
    */
-  const uploadImage = options.upload(app, {
-    useS3: true, // TODO: change it
+  const uploadImage = options.uploadFiles(app, {
     useFileFilter: true,
     allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'],
   });
