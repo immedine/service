@@ -22,6 +22,10 @@ module.exports = function(app, mongoose) {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'RestaurantOwner',
       required: true
+    },
+    totalMenu: {
+      type: Number,
+      default: 0
     }
   }, {
     versionKey: false,

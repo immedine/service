@@ -92,11 +92,26 @@ module.exports = function (app) {
     return Category.removeCategory(category._id);
   };
 
+  const updateMenuCount = (categoryId, value) => {
+    return Category.findOne({
+      _id: categoryId
+    })
+    .then(category =>{
+      if (category) {
+        category.totalMenu = value === 1 ? category.totalMenu + 1 : category.totalMenu - 1;
+        return category.save(); 
+      } else {
+        return Promise.resolve(null);
+      }
+    });
+  };
+
   return {
     'create': createCategory,
     'get': findCategoryById,
     'edit': editCategory,
     'list': getList,
-    'remove': removeCategory
+    'remove': removeCategory,
+    'updateMenuCount': updateMenuCount
   };
 };

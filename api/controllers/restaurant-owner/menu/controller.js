@@ -10,6 +10,7 @@ module.exports = function(app) {
    * @type {Object}
    */
   const menu = app.module.menu;
+  const category = app.module.category;
 
   /**
    * Adds a menu
@@ -21,6 +22,7 @@ module.exports = function(app) {
   const addMenu = (req, res, next) => {
     menu.create(req.body, req.session.user)
       .then(output => {
+        category.updateMenuCount(req.body.categoryRef, 1);
         req.workflow.outcome.data = output;
         req.workflow.emit('response');
       })
@@ -124,6 +126,7 @@ module.exports = function(app) {
     req.menuId.status = app.config.contentManagement.menu.deleted;
     menu.edit(req.menuId, req.session.user)
       .then(output => {
+        category.updateMenuCount(req.menuId.categoryRef, -1);
         req.workflow.emit('response');
       })
       .catch(next);

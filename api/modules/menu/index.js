@@ -118,7 +118,8 @@ module.exports = function (app) {
               order: '$order',
               veg: '$isVeg',
               spicy: '$isSpicy',
-              available: '$isAvailable'
+              available: '$isAvailable',
+              images: '$images'
             }
           }
         }
