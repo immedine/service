@@ -5,6 +5,7 @@
  * @module Modules/Menu
  */
 module.exports = function (app) {
+  const mongoose = require('mongoose');
 
 
   /**
@@ -31,16 +32,16 @@ module.exports = function (app) {
    */
   const findMenuById = function (menuId, userRef) {
     return Menu.findById(menuId)
-    .then(menuDetails => {
-      if(!menuDetails || (menuDetails && 
-        menuDetails.restaurantRef.toString() !== userRef.restaurantRef.toString())) {
-        return Promise.reject({
-          'errCode': 'MENU_NOT_FOUND'
-        });
-      } else {
-        return Promise.resolve(menuDetails);
-      }
-    });
+      .then(menuDetails => {
+        if (!menuDetails || (menuDetails && userRef &&
+          menuDetails.restaurantRef.toString() !== userRef.restaurantRef.toString())) {
+          return Promise.reject({
+            'errCode': 'MENU_NOT_FOUND'
+          });
+        } else {
+          return Promise.resolve(menuDetails);
+        }
+      });
   };
 
   /**
@@ -92,11 +93,56 @@ module.exports = function (app) {
     return Menu.removeMenu(menu._id);
   };
 
+  const listFromApp = (options) => {
+    const aggrArr = [];
+    aggrArr.push(
+      {
+        $match: {
+          restaurantRef: new mongoose.Types.ObjectId(options.filters.restaurantRef),
+          status: options.filters.status
+        }
+      }
+    );
+    aggrArr.push({
+      $sort: { order: 1 } // Sort by order before grouping
+    })
+    aggrArr.push(
+      {
+        $group: {
+          _id: '$categoryRef',
+          menus: {
+            $push: {
+              _id: '$_id',
+              name: '$name',
+              price: '$price',
+              order: '$order',
+              veg: '$isVeg',
+              spicy: '$isSpicy',
+              available: '$isAvailable'
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          categoryId: '$_id',
+          menus: 1,
+          _id: 0
+        }
+      }
+    );
+
+    return Menu.aggregate(aggrArr).then(data => {
+      return Promise.resolve(data);
+    });
+  }
+
   return {
     'create': createMenu,
     'get': findMenuById,
     'edit': editMenu,
     'list': getList,
-    'remove': removeMenu
+    'remove': removeMenu,
+    'listFromApp': listFromApp
   };
 };

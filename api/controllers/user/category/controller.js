@@ -22,8 +22,11 @@ module.exports = function(app) {
     let query = {
       skip: Number(req.query.skip) || app.config.page.defaultSkip,
       limit: Number(req.query.limit) || app.config.page.defaultLimit,
-      filters: {},
-      sort: {}
+      filters: {
+        status: app.config.contentManagement.category.active,
+        restaurantRef: req.body.filters.restaurantRef
+      },
+      sort: {order: 1}
     };
 
     if (req.body.filters) {

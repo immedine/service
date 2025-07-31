@@ -7,6 +7,7 @@ const controllers = {
   profile: require('./profile/route'),
   category: require('./category/route'),
   language: require('./language/route'),
+  menu: require('./menu/route'),
 };
 module.exports = function(app) {
   const options = {
@@ -30,7 +31,7 @@ module.exports = function(app) {
    */
   publicRouter.use('/auth', controllers.auth(app, options));
   publicRouter.use('/category', controllers.category(app, options));
-
+  publicRouter.use('/menu', controllers.menu(app, options));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                                                                                                                               //
@@ -44,6 +45,7 @@ module.exports = function(app) {
   privateRouter.use('/profile', controllers.profile(app, options));
   privateRouter.use('/language', controllers.language(app, options));
   privateRouter.use('/category', controllers.category(app, options));
+  privateRouter.use('/menu', controllers.menu(app, options));
   return {
     public: publicRouter,
     private: privateRouter,
