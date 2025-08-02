@@ -5,6 +5,18 @@ module.exports = function(app, mongoose) {
       type: String,
       required: true
     },
+    introductoryText: {
+      type: String
+    },
+    logo: {
+      type: String,
+    },
+    primaryThmeColor: {
+      type: String
+    },
+    secondaryThmeColor: {
+      type: String
+    },
     status: {
       type: Number,
       default: app.config.contentManagement.restaurant.active

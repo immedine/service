@@ -67,11 +67,26 @@ module.exports = function (app) {
     return Restaurant.removeRestaurant(restaurant._id);
   };
 
+  const editMyRestaurant = (restaurantId, data) => {
+    return Restaurant.findById(restaurantId)
+      .then(restaurant => {
+        if (!restaurant) {
+          return Promise.reject({
+            'errCode': 'RESTAURANT_NOT_FOUND'
+          });
+        }
+        restaurant.set(data);
+        return restaurant.save();
+      });
+  };
+
+
   return {
     'create': createRestaurant,
     'get': findRestaurantById,
     'edit': editRestaurant,
     'list': getList,
-    'remove': removeRestaurant
+    'remove': removeRestaurant,
+    'set': editMyRestaurant
   };
 };

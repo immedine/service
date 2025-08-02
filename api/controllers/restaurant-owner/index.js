@@ -29,6 +29,7 @@ const controllers = {
    * Global Config Route
    */
   globalConfig: require('./global-config/route'),
+  restaurant: require('./restaurant/route'),
 
   // /**
   //  * Admin User Route
@@ -137,6 +138,7 @@ module.exports = function(app) {
    * Global Config Route
    */
   privateRouter.use('/global-config', controllers.globalConfig(app, options));
+  privateRouter.use('/restaurant', controllers.restaurant(app, options));
 
   // /**
   //  * Admin User Route
