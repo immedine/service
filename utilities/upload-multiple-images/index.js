@@ -96,7 +96,7 @@ module.exports = function (app, opts) {
         bucket: config.bucket,
         key: config.key,
         path: config.path,
-        ACL: 'public-read',
+        // ACL: 'public-read',
       })
       .then(() => {
         return Promise.resolve(

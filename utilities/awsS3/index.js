@@ -88,7 +88,7 @@ class S3Util {
     this.s3.createBucket(
       {
         Bucket: config.bucket,
-        ACL: config.ACL,
+        // ACL: config.ACL,
       },
       function (err) {
         if (err) {
@@ -122,7 +122,7 @@ class S3Util {
         Bucket: config.bucket,
         Key: config.key,
         Body: require('fs').createReadStream(config.path),
-        ACL: 'public-read',
+        // ACL: 'public-read',
       })
       .promise();
   }

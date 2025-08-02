@@ -113,7 +113,7 @@ module.exports = function(app) {
           bucket: config.bucket,
           key: key,
           path: config.path,
-          ACL: 'public-read',
+          // ACL: 'public-read',
         },
         function(err) {
           if (err) {
@@ -135,7 +135,7 @@ module.exports = function(app) {
             bucket: config.bucket,
             key: key,
             path: config.path,
-            ACL: 'public-read',
+            // ACL: 'public-read',
           },
           function(err) {
             if (err) {
