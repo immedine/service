@@ -11,10 +11,10 @@ module.exports = function(app, mongoose) {
     logo: {
       type: String,
     },
-    primaryThmeColor: {
+    primaryColor: {
       type: String
     },
-    secondaryThmeColor: {
+    secondaryColor: {
       type: String
     },
     status: {

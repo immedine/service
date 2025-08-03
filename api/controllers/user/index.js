@@ -8,6 +8,7 @@ const controllers = {
   category: require('./category/route'),
   language: require('./language/route'),
   menu: require('./menu/route'),
+  restaurant: require('./restaurant/route'),
 };
 module.exports = function(app) {
   const options = {
@@ -32,6 +33,7 @@ module.exports = function(app) {
   publicRouter.use('/auth', controllers.auth(app, options));
   publicRouter.use('/category', controllers.category(app, options));
   publicRouter.use('/menu', controllers.menu(app, options));
+  publicRouter.use('/restaurant', controllers.restaurant(app, options));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                                                                                                                               //
@@ -46,6 +48,7 @@ module.exports = function(app) {
   privateRouter.use('/language', controllers.language(app, options));
   privateRouter.use('/category', controllers.category(app, options));
   privateRouter.use('/menu', controllers.menu(app, options));
+  privateRouter.use('/restaurant', controllers.restaurant(app, options));
   return {
     public: publicRouter,
     private: privateRouter,
