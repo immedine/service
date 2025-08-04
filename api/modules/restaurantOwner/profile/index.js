@@ -16,7 +16,6 @@ module.exports = function (app) {
    * @return {Promise}                               The promise
    */
   const setProfile = function (restaurantOwnerDoc, profileData) {
-    let oldProfilePicture = '';
 
     if (profileData.firstName) {
       restaurantOwnerDoc.personalInfo.firstName = profileData.firstName;
@@ -28,12 +27,7 @@ module.exports = function (app) {
       profileData.email = profileData.email.toLowerCase();
       restaurantOwnerDoc.personalInfo.email = profileData.email;
     }
-    if (profileData.profilePicture) {
-      if (restaurantOwnerDoc.personalInfo.profilePicture) {
-        oldProfilePicture = restaurantOwnerDoc.personalInfo.profilePicture;
-      }
-      restaurantOwnerDoc.personalInfo.profilePicture = profileData.profilePicture;
-    }
+    console.log("restaurantOwnerDoc ", restaurantOwnerDoc, profileData)
     return app.models.RestaurantOwner.countDocuments({
       'personalInfo.email': profileData.email,
       _id: {
@@ -45,9 +39,9 @@ module.exports = function (app) {
             errCode: 'RESTAURANT_OWNER_EMAIL_ALREADY_EXISTS',
           })
         : restaurantOwnerDoc.save().then((restaurantOwner) => {
-            if (oldProfilePicture) {
-              app.utility.removeFile(oldProfilePicture);
-            }
+            // if (oldProfilePicture) {
+            //   app.utility.removeFile(oldProfilePicture);
+            // }
             return restaurantOwner;
           })
     );

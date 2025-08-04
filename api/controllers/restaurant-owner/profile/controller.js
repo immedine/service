@@ -30,10 +30,7 @@ module.exports = function (app) {
    * @return {Promise}       The Promise
    */
   const setProfile = (req, res, next) => {
-    if (req.files.profilePicture) {
-      req.body.profilePicture = req.files.profilePicture.getPath;
-    }
-
+    console.log("req.body", req.body)
     restaurantOwner.profile
       .set(req.session.user, req.body)
       .then((profile) => {

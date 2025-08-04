@@ -9,7 +9,7 @@ module.exports = function (app) {
    * admin module
    * @type {Object}
    */
-  const admin = app.module.admin;
+  const restaurantOwner = app.module.restaurantOwner;
 
   /**
    * Fetch dashboard parameters
@@ -19,12 +19,8 @@ module.exports = function (app) {
    * @return {Promise}       The Promise
    */
   const home = function (req, res, next) {
-    let userRef = "";
-    if (req.session.user.roleInfo.isBusinessUser) {
-      userRef = req.session.user._id;
-    }
-    admin.dashboard
-      .getStats(userRef)
+    restaurantOwner.dashboard
+      .getStats(req.session.user.restaurantRef)
       .then((output) => {
         req.workflow.outcome.data = output;
         req.workflow.emit('response');

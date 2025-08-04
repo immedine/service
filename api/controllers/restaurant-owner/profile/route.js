@@ -20,11 +20,6 @@ module.exports = function (app, options) {
    * File upload handling middleware
    * @type {Function}
    */
-  const uploadImage = options.upload(app, {
-    useS3: true, // TODO: change it
-    useFileFilter: true,
-    allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
-  });
 
   /**
    * The JSON-Schema for these APIs
@@ -50,8 +45,6 @@ module.exports = function (app, options) {
     .route('/')
     .get(controllers.getProfile)
     .put([
-      uploadImage('profilePicture'),
-      options.validateFile(schemaValidator.profilePhoto),
       options.validateBody(schemaValidator.set),
       controllers.setProfile,
     ]);

@@ -6,27 +6,29 @@
  */
 
 module.exports = function(app) {
-  const User = app.models.User;
-  const City = app.models.City;
-  const Story = app.models.Story;
-  const Route = app.models.Route;
+  const Category = app.models.Category;
+  const Menu = app.models.Menu;
 
-  const getStats = (userRef) => {
-    if (!userRef) {
-      return Promise.all([
-        User.countDocuments({
-          accountStatus: { $nin: [
-              app.config.user.accountStatus.user.blocked,
-              app.config.user.accountStatus.user.deleted,
+  const getStats = (restaurantId) => {
+    return Promise.all([
+        Category.countDocuments({
+          restaurantRef: restaurantId,
+          status: { $nin: [
+              app.config.contentManagement.category.deleted,
             ], },
         }).exec(),
-      ]).spread((totalUser) => {
+        Menu.countDocuments({
+          restaurantRef: restaurantId,
+          status: { $nin: [
+              app.config.contentManagement.menu.deleted,
+            ], },
+        }).exec(),
+      ]).spread((totalCategories, totalMenu) => {
         return {
-          totalUser
-
+          totalCategories,
+          totalMenu
         };
       });
-    }
     
   };
   return { getStats };
