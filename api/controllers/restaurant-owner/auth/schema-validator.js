@@ -46,11 +46,49 @@ module.exports = function (app) {
     },
   };
 
+  const signup = {
+    ownerDetails: {
+      firstName: {
+        type: 'string',
+        allowEmpty: false,
+        required: true,
+      },
+      lastName: {
+        type: 'string',
+        allowEmpty: false,
+        required: true,
+      },
+      email: {
+        type: 'string',
+        required: true,
+        allowEmpty: false,
+        format: 'email',
+      },
+      password: {
+        type: 'string',
+        required: true,
+        allowEmpty: false,
+      },
+    },
+    restaurantDetails: {
+      name: {
+        type: 'string',
+        allowEmpty: false,
+        required: true,
+      },
+      introductoryText: {
+        type: 'string'
+      },
+    }
+
+  };
+
   return {
     login: login,
     forgotPassword: {
       requestOTP: forgotPasswordRequestOTP,
       verifyOTP: forgotPasswordVerifyOTP,
     },
+    signup: signup
   };
 };

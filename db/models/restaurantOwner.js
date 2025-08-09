@@ -174,30 +174,30 @@ module.exports = function (app, mongoose /*, plugins*/) {
         $ne: app.config.user.accountStatus.restaurantOwner.deleted,
       },
     })
-    .populate('roleInfo.roleId')
+      .populate('roleInfo.roleId')
       .exec()
       .then((restaurantOwnerDoc) =>
         restaurantOwnerDoc
           ? Promise.resolve(restaurantOwnerDoc)
           : Promise.reject({
-              errCode: 'RESTAURANT_OWNER_NOT_FOUND',
-            })
+            errCode: 'RESTAURANT_OWNER_NOT_FOUND',
+          })
       )
       .then((restaurantOwnerDoc) =>
         app.utility.validatePassword(password, restaurantOwnerDoc.authenticationInfo.password).then((result) =>
           result
             ? Promise.resolve(restaurantOwnerDoc)
             : Promise.reject({
-                errCode: 'PASSWORD_MISMATCH',
-              })
+              errCode: 'PASSWORD_MISMATCH',
+            })
         )
       )
       .then((restaurantOwnerDoc) =>
         restaurantOwnerDoc.accountStatus !== app.config.user.accountStatus.restaurantOwner.blocked
           ? Promise.resolve(restaurantOwnerDoc)
           : Promise.reject({
-              errCode: 'RESTAURANT_OWNER_HAS_BEEN_SUSPENDED',
-            })
+            errCode: 'RESTAURANT_OWNER_HAS_BEEN_SUSPENDED',
+          })
       )
       .then((restaurantOwnerDoc) => {
         return Promise.resolve({
@@ -224,15 +224,15 @@ module.exports = function (app, mongoose /*, plugins*/) {
         restaurantOwnerDoc
           ? Promise.resolve(restaurantOwnerDoc)
           : Promise.reject({
-              errCode: 'RESTAURANT_OWNER_NOT_FOUND',
-            })
+            errCode: 'RESTAURANT_OWNER_NOT_FOUND',
+          })
       )
       .then((restaurantOwnerDoc) =>
         restaurantOwnerDoc.accountStatus !== app.config.user.accountStatus.restaurantOwner.blocked
           ? Promise.resolve(restaurantOwnerDoc)
           : Promise.reject({
-              errCode: 'RESTAURANT_OWNER_HAS_BEEN_SUSPENDED',
-            })
+            errCode: 'RESTAURANT_OWNER_HAS_BEEN_SUSPENDED',
+          })
       )
       .then((restaurantOwnerDoc) => {
         restaurantOwnerDoc.authenticationInfo.otp = {
@@ -296,15 +296,15 @@ module.exports = function (app, mongoose /*, plugins*/) {
         restaurantOwnerDoc
           ? Promise.resolve(restaurantOwnerDoc)
           : Promise.reject({
-              errCode: 'RESTAURANT_OWNER_NOT_FOUND',
-            })
+            errCode: 'RESTAURANT_OWNER_NOT_FOUND',
+          })
       )
       .then((restaurantOwnerDoc) =>
         restaurantOwnerDoc.accountStatus !== app.config.user.accountStatus.restaurantOwner.blocked
           ? Promise.resolve(restaurantOwnerDoc)
           : Promise.reject({
-              errCode: 'RESTAURANT_OWNER_HAS_BEEN_SUSPENDED',
-            })
+            errCode: 'RESTAURANT_OWNER_HAS_BEEN_SUSPENDED',
+          })
       )
       .then((restaurantOwnerDoc) => {
         let savedOTP = {
@@ -371,6 +371,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
   restaurantOwnerSchema.statics.addRestaurantOwner = function (restaurantOwnerObj) {
     return this.exists({
       'personalInfo.email': restaurantOwnerObj.personalInfo.email,
+      restaurantRef: restaurantOwnerObj.restaurantRef,
       accountStatus: {
         $ne: app.config.user.accountStatus.restaurantOwner.deleted,
       },
@@ -378,59 +379,78 @@ module.exports = function (app, mongoose /*, plugins*/) {
       .then((count) =>
         count
           ? Promise.reject({
-              errCode: 'RESTAURANT_OWNER_EMAIL_ALREADY_EXISTS',
-            })
+            errCode: 'RESTAURANT_OWNER_EMAIL_ALREADY_EXISTS',
+          })
           : Promise.resolve()
       )
       .then(() => {
-        // let password = app.utility.getRandomCode(8, true);
-        let password = process.env.RESTAURANT_OWNER_DEFAULT_PASSWORD;
-        return app.utility
-          .encryptPassword(password)
-          .then((password) => {
-            restaurantOwnerObj.authenticationInfo = {
-              password: password,
-            };
-            return new this(restaurantOwnerObj).save();
+        if (restaurantOwnerObj.from !== "signup") {
+          // let password = app.utility.getRandomCode(8, true);
+          let password = process.env.RESTAURANT_OWNER_DEFAULT_PASSWORD;
+          return app.utility
+            .encryptPassword(password)
+            .then((password) => {
+              restaurantOwnerObj.authenticationInfo = {
+                password: password,
+              };
+              return new this(restaurantOwnerObj).save();
+            })
+            .then((updatedRestaurantOwnerObj) => {
+              ////////////////////////////////////////////////////
+              //Send email to newly created restaurant owner    //
+              ////////////////////////////////////////////////////
+              let emailNotification = app.config.notification.email(app, app.config.lang.defaultLanguage),
+                multilangConfig = app.config.lang[app.config.lang.defaultLanguage];
+              // create email template
+              // app.render(
+              //   emailNotification.restaurantOwnerAddedByRestaurantOwner.pageName,
+              //   {
+              //     greeting: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.greeting,
+              //     firstName: updatedRestaurantOwnerObj.personalInfo.firstName,
+              //     message: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.message,
+              //     emailText: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.emailText,
+              //     email: updatedRestaurantOwnerObj.personalInfo.email,
+              //     passwordText: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.passwordText,
+              //     password: password,
+              //   },
+              //   function (err, renderedText) {
+              //     if (err) {
+              //       console.log(err);
+              //     } else {
+              //       // send email
+              //       app.service.notification.email.immediate({
+              //         userId: updatedRestaurantOwnerObj._id,
+              //         userType: app.config.user.role.restaurantOwner,
+              //         emailId: updatedRestaurantOwnerObj.personalInfo.email,
+              //         subject: emailNotification.restaurantOwnerAddedByRestaurantOwner.subject,
+              //         body: renderedText,
+              //       });
+              //     }
+              //   }
+              // );
+              ////////
+              //End //
+              ////////
+              return Promise.resolve(updatedRestaurantOwnerObj);
+            });
+        } else {
+          return app.utility.encryptPassword(restaurantOwnerObj.personalInfo.password).then((encryptedPassword) => {
+            return Promise.resolve({
+              password: encryptedPassword,
+            });
           })
-          .then((updatedRestaurantOwnerObj) => {
-            ////////////////////////////////////////////////////
-            //Send email to newly created restaurant owner    //
-            ////////////////////////////////////////////////////
-            let emailNotification = app.config.notification.email(app, app.config.lang.defaultLanguage),
-              multilangConfig = app.config.lang[app.config.lang.defaultLanguage];
-            // create email template
-            // app.render(
-            //   emailNotification.restaurantOwnerAddedByRestaurantOwner.pageName,
-            //   {
-            //     greeting: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.greeting,
-            //     firstName: updatedRestaurantOwnerObj.personalInfo.firstName,
-            //     message: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.message,
-            //     emailText: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.emailText,
-            //     email: updatedRestaurantOwnerObj.personalInfo.email,
-            //     passwordText: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.passwordText,
-            //     password: password,
-            //   },
-            //   function (err, renderedText) {
-            //     if (err) {
-            //       console.log(err);
-            //     } else {
-            //       // send email
-            //       app.service.notification.email.immediate({
-            //         userId: updatedRestaurantOwnerObj._id,
-            //         userType: app.config.user.role.restaurantOwner,
-            //         emailId: updatedRestaurantOwnerObj.personalInfo.email,
-            //         subject: emailNotification.restaurantOwnerAddedByRestaurantOwner.subject,
-            //         body: renderedText,
-            //       });
-            //     }
-            //   }
-            // );
-            ////////
-            //End //
-            ////////
-            return Promise.resolve(updatedRestaurantOwnerObj);
-          });
+            .then(({ password }) => {
+              restaurantOwnerObj.authenticationInfo = {
+                password
+              };
+
+              return new this(restaurantOwnerObj).save().then((user) => {
+
+                return Promise.resolve(user);
+              });
+            });
+        }
+
       });
   };
 

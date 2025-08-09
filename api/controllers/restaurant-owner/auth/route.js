@@ -55,5 +55,7 @@ module.exports = function (app, options) {
     controllers.forgotPassword.verifyOTP,
   ]);
 
+  router.post('/signup', [options.validateBody(schemaValidator.signup), controllers.signupRequest]);
+
   return router;
 };

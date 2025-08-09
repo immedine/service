@@ -10,6 +10,7 @@ module.exports = function (app) {
    * @type {Object}
    */
   const restaurantOwner = app.module.restaurantOwner;
+  const restaurant = app.module.restaurant;
 
   /**
    * Login
@@ -85,11 +86,37 @@ module.exports = function (app) {
       .catch(next);
   };
 
+  const signupRequest = (req, res, next) => {
+    restaurant.create({
+      name: req.body.restaurantDetails.name,
+      introductoryText: req.body.restaurantDetails.introductoryText
+    })
+      .then((output) => {
+        // req.workflow.outcome.data = output;
+        restaurantOwner.crud.add({
+          personalInfo: {
+            firstName: req.body.ownerDetails.firstName,
+            lastName: req.body.ownerDetails.lastName,
+            email: req.body.ownerDetails.email,
+            password: req.body.ownerDetails.password
+          },
+          restaurantRef: output._id,
+          from: 'signup'
+        })
+        .then(() => {
+          req.workflow.emit('response');
+        })
+        .catch(next);
+      })
+      .catch(next);
+  };
+
   return {
     login: login,
     forgotPassword: {
       requestOTP: forgotPasswordRequestOTP,
       verifyOTP: forgotPasswordVerifyOTP,
     },
+    signupRequest: signupRequest
   };
 };

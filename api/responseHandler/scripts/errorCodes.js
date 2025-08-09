@@ -59,32 +59,13 @@ module.exports = function (/*app*/) {
     CATEGORY_ALREADY_EXISTS: 1311,
     CATEGORY_NOT_FOUND: 1312,
 
-    // CITY
-    CITY_ALREADY_EXISTS: 1321,
-
-    //STORY
-    STORY_ALREADY_EXISTS: 1341,
-    STORY_ALREADY_SAVED: 1342,
-
-    //ROUTE
-    ROUTE_ALREADY_EXISTS: 1361,
-    ROUTE_ALREADY_SAVED: 1362,
-
     //FAQ
     FAQ_ALREADY_EXISTS: 1381,
-
-    // ADVERTISEMENT
-    ADVERTISEMENT_ALREADY_EXISTS: 1391,
 
     ///////////////////
     // GLOBAL CONFIG //
     ///////////////////
     GLOBAL_CONFIG_NOT_FOUND: 1400,
-
-    ///////////////////
-    // Location     //
-    ///////////////////
-    LOCATION_ALREADY_EXISTS: 1450,
 
     ////////////////////////
     // RESTAURANT OWNER  //
