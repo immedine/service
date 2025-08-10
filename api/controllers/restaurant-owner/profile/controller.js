@@ -30,7 +30,7 @@ module.exports = function (app) {
    * @return {Promise}       The Promise
    */
   const setProfile = (req, res, next) => {
-    console.log("req.body", req.body)
+    // console.log("req.body", req.body)
     restaurantOwner.profile
       .set(req.session.user, req.body)
       .then((profile) => {

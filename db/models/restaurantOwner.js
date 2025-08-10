@@ -17,20 +17,20 @@ module.exports = function (app, mongoose /*, plugins*/) {
        * Personal Info
        */
       personalInfo: {
-        /**
-         * First name
-         */
-        firstName: {
-          type: String,
-          required: true,
-        },
-        /**
-         * Last name
-         */
-        lastName: {
-          type: String,
-          required: true,
-        },
+        // /**
+        //  * First name
+        //  */
+        // firstName: {
+        //   type: String,
+        //   required: true,
+        // },
+        // /**
+        //  * Last name
+        //  */
+        // lastName: {
+        //   type: String,
+        //   required: true,
+        // },
         /**
          * Full Name
          */
@@ -58,6 +58,11 @@ module.exports = function (app, mongoose /*, plugins*/) {
         country: {
           type: String,
           default: 'IN',
+        },
+
+        phone: {
+          countryCode: { type: String, default: 'IN' },
+          number: { type: String },
         },
       },
       /**
@@ -155,10 +160,10 @@ module.exports = function (app, mongoose /*, plugins*/) {
    * Pre Hook to save name as full
    * @param  {Object} next) {                     this.fullName The Full Name
    */
-  restaurantOwnerSchema.pre('save', function (next) {
-    this.personalInfo.fullName = this.personalInfo.firstName + ' ' + this.personalInfo.lastName;
-    next();
-  });
+  // restaurantOwnerSchema.pre('save', function (next) {
+  //   this.personalInfo.fullName = this.personalInfo.firstName + ' ' + this.personalInfo.lastName;
+  //   next();
+  // });
 
   /**
    * Custom login details validation

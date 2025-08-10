@@ -17,17 +17,21 @@ module.exports = function (app) {
    */
   const setProfile = function (restaurantOwnerDoc, profileData) {
 
-    if (profileData.firstName) {
-      restaurantOwnerDoc.personalInfo.firstName = profileData.firstName;
-    }
-    if (profileData.lastName) {
-      restaurantOwnerDoc.personalInfo.lastName = profileData.lastName;
+    if (profileData.fullName) {
+      restaurantOwnerDoc.personalInfo.fullName = profileData.fullName;
     }
     if (profileData.email) {
       profileData.email = profileData.email.toLowerCase();
       restaurantOwnerDoc.personalInfo.email = profileData.email;
     }
-    console.log("restaurantOwnerDoc ", restaurantOwnerDoc, profileData)
+
+    if (profileData.phone && profileData.phone.number) {
+      restaurantOwnerDoc.personalInfo.phone = {
+        countryCode: 'IN',
+        number: profileData.phone.number
+      };
+    }
+    // console.log("restaurantOwnerDoc ", restaurantOwnerDoc, profileData)
     return app.models.RestaurantOwner.countDocuments({
       'personalInfo.email': profileData.email,
       _id: {

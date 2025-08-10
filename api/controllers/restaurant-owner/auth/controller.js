@@ -95,8 +95,8 @@ module.exports = function (app) {
         // req.workflow.outcome.data = output;
         restaurantOwner.crud.add({
           personalInfo: {
-            firstName: req.body.ownerDetails.firstName,
-            lastName: req.body.ownerDetails.lastName,
+            fullName: req.body.ownerDetails.fullName,
+            phone: req.body.ownerDetails.phone,
             email: req.body.ownerDetails.email,
             password: req.body.ownerDetails.password
           },
