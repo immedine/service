@@ -38,6 +38,13 @@ module.exports = function (app, options) {
     allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'],
   });
 
+  const uploadImages = options.uploadMultipleImages(app, {
+    useS3: true,
+    useFileFilter: true,
+    allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'],
+  });
+
+
   /**
    * File upload handling middleware
    * @type {Function}
@@ -71,6 +78,12 @@ module.exports = function (app, options) {
     uploadImage('image'),
     options.validateFile(schemaValidator.image),
     controllers.uploadImage,
+  ]);
+
+  router.post('/upload-multiple-images', [
+    uploadImages('image'),
+    options.validateFile(schemaValidator.image),
+    controllers.uploadImages,
   ]);
 
   router.post('/upload-audio', [

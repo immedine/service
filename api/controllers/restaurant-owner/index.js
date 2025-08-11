@@ -79,6 +79,8 @@ module.exports = function(app) {
      * @type {Function}
      */
     uploadFiles: app.utility.uploadFiles,
+    uploadMultipleImages: app.utility.uploadMultipleImages,
+
 
     /**
      * Validates the request body

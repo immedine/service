@@ -11,6 +11,11 @@ module.exports = (app) => {
     req.workflow.emit('response');
   };
 
+  const uploadImages = (req, res, next) => {
+    req.workflow.outcome.data = req.files.map(eachImage => eachImage.getPath);
+    req.workflow.emit('response');
+  };
+
   const uploadAudio = (req, res, next) => {
     req.workflow.outcome.data = req.files.audio.getPath;
     req.workflow.emit('response');
@@ -21,5 +26,5 @@ module.exports = (app) => {
     req.workflow.emit('response');
   };
 
-  return { uploadImage, uploadAudio, uploadVideo };
+  return { uploadImage, uploadAudio, uploadVideo, uploadImages };
 };
