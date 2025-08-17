@@ -26,6 +26,7 @@ module.exports = function (app) {
   router.get('/error-codes', controllers.getErrorCodes);
 
   router.post('/contact-us', [app.utility.apiValidate.body(schemaValidator.contactUs), controllers.submitContactUs]);
+  router.post('/mail', [controllers.triggerEmail]);
 
   return {
     public: router,

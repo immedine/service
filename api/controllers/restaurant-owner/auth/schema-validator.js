@@ -28,16 +28,10 @@ module.exports = function (app) {
   };
 
   const forgotPasswordVerifyOTP = {
-    email: {
+    token: {
       type: 'string',
       required: true,
       allowEmpty: false,
-      format: 'email',
-    },
-    otp: {
-      type: 'string',
-      required: true,
-      length: 4,
     },
     password: {
       type: 'string',

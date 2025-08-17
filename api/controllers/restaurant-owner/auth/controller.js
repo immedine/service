@@ -81,7 +81,7 @@ module.exports = function (app) {
    */
   const forgotPasswordVerifyOTP = (req, res, next) => {
     restaurantOwner.auth.forgotPassword
-      .verify(req.body.email, req.body.otp, req.body.password)
+      .verify(req.body.token, req.body.password)
       .then((output) => req.workflow.emit('response'))
       .catch(next);
   };
@@ -111,12 +111,24 @@ module.exports = function (app) {
       .catch(next);
   };
 
+  const verifyToken = (req, res, next) => {
+    const {token} = req.query;
+    restaurantOwner.auth
+      .verifyToken(token)
+      .then((output) => {
+        req.workflow.outcome.data = app.utility.format.user(output);
+        req.workflow.emit('response');
+      })
+      .catch(next);
+  };
+
   return {
     login: login,
     forgotPassword: {
       requestOTP: forgotPasswordRequestOTP,
       verifyOTP: forgotPasswordVerifyOTP,
     },
+    verifyToken: verifyToken,
     signupRequest: signupRequest
   };
 };

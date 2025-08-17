@@ -27,6 +27,8 @@ module.exports = function (/*app*/) {
     SOCIAL_ID_NOT_FOUND: 1004,
     ACCESS_TOKEN_EXPIRED: 1005,
     REFRESH_TOKEN_EXPIRED: 1006,
+    TOKEN_INVALID: 1007,
+    TOKEN_TIMEDOUT: 1008,
 
     ////////////
     // ADMIN  //

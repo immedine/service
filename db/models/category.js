@@ -7,7 +7,7 @@ module.exports = function(app, mongoose) {
     },
     order: {
       type: Number,
-      required: true,
+      // required: true,
     },
     status: {
       type: Number,
@@ -70,6 +70,8 @@ module.exports = function(app, mongoose) {
   schema.statics.removeCategory = function (_id) {
     return this.findByIdAndRemove(_id).exec();
   };
+
+  schema.index({ name: 1, restaurantRef: 1, status: app.config.contentManagement.category.active }, { unique: true });
 
   return schema;
 };

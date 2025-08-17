@@ -258,7 +258,7 @@ module.exports = function(app) {
       files[each].forEach((file) => {
         if (isError) {
           console.log('file1', file);
-          if(file && file.fieldname!=='image'){
+          if(file && file.fieldname!=='excel'){
             require('fs').unlink(file.path, () => {});
           }
 
@@ -267,14 +267,14 @@ module.exports = function(app) {
             file.getPath && utility.removeFile(file.getPath, () => {});
           } else {
             console.log('file1', file);
-            if(file && file.fieldname!=='image'){
+            if(file && file.fieldname!=='excel'){
               require('fs').unlink(file.path, () => {});
             }
           }
         } else {
           if (file.path !== file.getPath) {
             console.log('file2', file);
-            if(file && file.fieldname!=='image'){
+            if(file && file.fieldname!=='excel'){
               require('fs').unlink(file.path, () => {});
             }
           }

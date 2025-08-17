@@ -4,13 +4,21 @@ module.exports = function (app, mongoose) {
     images: [{
       type: String
     }],
+    languagesRef: [{
+      code: String,
+      name: String,
+      description: String,
+      ingredients: [{
+        type: String
+      }]
+    }],
     name: {
       type: String,
       required: true
     },
     order: {
       type: Number,
-      required: true,
+      // required: true,
     },
     status: {
       type: Number,
@@ -18,13 +26,14 @@ module.exports = function (app, mongoose) {
     },
     restaurantRef: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Restaurant',
-      required: true
+      ref: 'Restaurant'
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'RestaurantOwner',
-      required: true
+      ref: 'RestaurantOwner'
+    },
+    isCreatedByImmedine: {
+      type: Boolean,
     },
     categoryRef: {
       type: mongoose.Schema.Types.ObjectId,

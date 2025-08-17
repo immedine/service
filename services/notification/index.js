@@ -4,7 +4,7 @@ module.exports = function (app, smsGateway) {
   /**
    * The email notification module
    */
-  const email = require('./email/ses.js')(app);
+  const email = require('./email/nodemailer.js')(app);
   const push = require('./push/index.js')(app);
   /**
    * The sms  module
@@ -28,7 +28,7 @@ module.exports = function (app, smsGateway) {
    */
   const immediateEmail = function ({ emailId, subject, body }) {
     return email
-      .sesEmail({
+      .titanMail({
         to: emailId,
         subject: subject,
         renderedOutput: body,

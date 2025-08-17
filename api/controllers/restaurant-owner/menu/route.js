@@ -17,6 +17,14 @@ const router = require('express').Router();
  */
 module.exports = function (app, options) {
 
+  const uploadExcel = options.uploadFiles(app,{
+    useFileFilter: true,
+    allowedFileTypes: [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel',
+    ],
+  });
+
   /**
    * The JSON-Schema for these APIs
    * @type {Object}
@@ -50,6 +58,11 @@ module.exports = function (app, options) {
     options.validateQuery(schemaValidator.listQuery),
     options.validateBody(schemaValidator.list),
     controllers.list
+  ]);
+
+  router.post('/bulk-add', [
+    uploadExcel('excel'),
+    controllers.bulkAdd
   ]);
 
   /**

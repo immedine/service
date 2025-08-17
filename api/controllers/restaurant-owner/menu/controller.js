@@ -132,12 +132,28 @@ module.exports = function(app) {
       .catch(next);
   };
 
+  const bulkAdd = (req, res, next) => {
+    // uploadFile.create({
+    //   originalFileName: req.files.excel.originalname,
+    //   uploadedFileName: req.files.excel.filename
+    // })
+    // .then(output => {
+    //   req.workflow.outcome.data = req.files.excel.getPath;
+    //   req.workflow.emit('response');
+    // })
+    // .catch(next);
+    req.workflow.outcome.data = req.files.excel.getPath;
+    req.workflow.emit('response');
+    
+  };
+
   return {
     add: addMenu,
     get: getMenu,
     edit: editMenu,
     list: getMenuList,
-    delete: deleteMenu
+    delete: deleteMenu,
+    bulkAdd: bulkAdd
   };
 
 };

@@ -35,21 +35,21 @@ module.exports = {
     email: {
       copyRightText: 'Copyright (c) RA-System',
       forgotPassword: {
-        subject: 'ROODS - Reset Password OTP',
+        subject: 'ImmeDine - Reset Password',
         greeting: 'Hi',
         message:
-          'You recently requested OTP to reset your password for your ROODS account. Use the OTP below to reset it.',
+          'You recently requested to reset your password for your ImmeDine account. Click on the button below to reset your password.',
         otpText: 'OTP',
       },
       userSignupOTP: {
-        subject: `ROODS - OTP for signup`,
+        subject: `ImmeDine - OTP for signup`,
         greeting: 'Hi',
-        message: 'You recently requested OTP to signup for your ROODS account. Use the OTP below to signup it.',
+        message: 'You recently requested OTP to signup for your ImmeDine account. Use the OTP below to signup it.',
         otpText: 'OTP',
       },
       user: {
         signupConfirmation: {
-          subject: (name) => `ROODS - Confirmation as Candidate ${name}`,
+          subject: (name) => `ImmeDine - Confirmation as Candidate ${name}`,
           greeting: 'Hi',
           message:
             'Your candidate account has been successfully created. Use the link and credentials below to access it.',
@@ -58,7 +58,7 @@ module.exports = {
       },
       employer: {
         signupConfirmation: {
-          subject: (name) => `ROODS - Confirmation as Employer ${name}`,
+          subject: (name) => `ImmeDine - Confirmation as Employer ${name}`,
           greeting: 'Hi',
           message:
             'Your employer account has been successfully created by Admin. Use the link and credentials below to access it.',
@@ -67,7 +67,7 @@ module.exports = {
       },
       agency: {
         signupConfirmation: {
-          subject: (name) => `ROODS - Confirmation as Agency ${name}`,
+          subject: (name) => `ImmeDine - Confirmation as Agency ${name}`,
           greeting: 'Hi',
           message:
             'Your agency account has been successfully created by Admin. Use the link and credentials below to access it.',

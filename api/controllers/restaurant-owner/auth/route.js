@@ -47,6 +47,10 @@ module.exports = function (app, options) {
     controllers.forgotPassword.requestOTP,
   ]);
 
+  router.get('/verify-token', [
+    controllers.verifyToken,
+  ]);
+
   /**
    * Forgot Password verify OTP
    */

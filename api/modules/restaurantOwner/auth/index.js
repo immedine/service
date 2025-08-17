@@ -43,16 +43,21 @@ module.exports = function (app) {
   /**
    * Verifies the OTP and sets the new password
    * @param  {String}  email    The email
-   * @param  {String}  otp      The OTP to be verified
+   * @param  {String}  token      The Token to be verified
    * @param  {String}  password The new password to be set
    * @return {Promise}          The promise
    */
-  const forgotPasswordVerifyOTP = function (email, otp, password) {
-    return RestaurantOwner.forgotPasswordVerifyOTP(email, otp, password);
+  const forgotPasswordVerifyOTP = function (token, password) {
+    return RestaurantOwner.forgotPasswordVerifyOTP(token, password);
+  };
+
+  const verifyToken = function (token) {
+    return RestaurantOwner.verifyToken(token);
   };
 
   return {
     login: login,
+    verifyToken: verifyToken,
     forgotPassword: {
       create: forgotPasswordCreateOTP,
       verify: forgotPasswordVerifyOTP,

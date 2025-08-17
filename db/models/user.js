@@ -429,7 +429,7 @@ module.exports = function (app, mongoose) {
         };
 
         return userDoc.save().then((userDoc) => {
-          if (process.env.ENABLE_EMAIL_COMMUNICATIONS.trim().toUpperCase() === 'TRUE') {
+          // if (process.env.ENABLE_EMAIL_COMMUNICATIONS.trim().toUpperCase() === 'TRUE') {
             sendEmailOtp({
               otp: userDoc.authenticationInfo.otp.code,
               emailId: userDoc.personalInfo.email,
@@ -438,7 +438,7 @@ module.exports = function (app, mongoose) {
               firstName: userDoc.personalInfo.firstName,
               emailName: 'forgotPassword',
             });
-          }
+          // }
 
           return Promise.resolve(userDoc.authenticationInfo.otp);
         });
@@ -713,6 +713,7 @@ module.exports = function (app, mongoose) {
   };
 
   const sendEmailOtp = ({ otp, userId, userType, emailId, firstName, emailName }) => {
+    console.log("here in sendEmailOtp ", emailId);
     let emailNotification = app.config.notification.email(app, app.config.lang.defaultLanguage),
       multilangConfig = app.config.lang[app.config.lang.defaultLanguage];
     // create email template
