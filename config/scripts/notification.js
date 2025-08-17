@@ -41,13 +41,13 @@ module.exports = {
         subject: app.config.lang[selectedLang].email.forgotPassword.subject,
         pageName: 'forgot-password',
       },
-      userSignupOTP:{
-        subject: app.config.lang[selectedLang].email.userSignupOTP.subject,
+      userSignupRequest:{
+        subject: app.config.lang[selectedLang].email.userSignupRequest.subject,
         pageName: 'user-signup-otp',
       },
-      user:{
+      owner:{
         signupConfirmation:{
-          subject: app.config.lang[selectedLang].email.user.signupConfirmation.subject,
+          subject: app.config.lang[selectedLang].email.owner.signupConfirmation.subject,
           pageName: 'user-signup-confirmation',
         },
       },

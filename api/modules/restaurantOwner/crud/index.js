@@ -40,6 +40,7 @@ module.exports = function (app) {
   const editRestaurantOwner = function (editedRestaurantOwnerDoc) {
     return RestaurantOwner.exists({
       'personalInfo.email': editedRestaurantOwnerDoc.personalInfo.email,
+      restaurantRef: editedRestaurantOwnerDoc.restaurantRef,
       '_id': {
         $ne: editedRestaurantOwnerDoc._id
       },

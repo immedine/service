@@ -34,10 +34,10 @@ module.exports = {
       deleted: 3,
     },
     restaurantOwner: {
-      pending: 0,
       active: 1,
       blocked: 2,
       deleted: 3,
+      unverified: 4
     },
     admin: {
       active: 1,

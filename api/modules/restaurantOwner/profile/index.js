@@ -34,6 +34,7 @@ module.exports = function (app) {
     // console.log("restaurantOwnerDoc ", restaurantOwnerDoc, profileData)
     return app.models.RestaurantOwner.countDocuments({
       'personalInfo.email': profileData.email,
+      restaurantRef: profileData.restaurantRef,
       _id: {
         $ne: restaurantOwnerDoc._id,
       },

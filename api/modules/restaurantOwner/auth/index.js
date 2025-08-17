@@ -51,8 +51,8 @@ module.exports = function (app) {
     return RestaurantOwner.forgotPasswordVerifyOTP(token, password);
   };
 
-  const verifyToken = function (token) {
-    return RestaurantOwner.verifyToken(token);
+  const verifyToken = function (token, type) {
+    return RestaurantOwner.verifyToken(token, type);
   };
 
   return {

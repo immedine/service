@@ -41,13 +41,13 @@ module.exports = {
           'You recently requested to reset your password for your ImmeDine account. Click on the button below to reset your password.',
         otpText: 'OTP',
       },
-      userSignupOTP: {
-        subject: `ImmeDine - OTP for signup`,
+      userSignupRequest: {
+        subject: `ImmeDine - Signup Verification`,
         greeting: 'Hi',
-        message: 'You recently requested OTP to signup for your ImmeDine account. Use the OTP below to signup it.',
+        message: 'You recently requested to signup for your ImmeDine account. Click on the button below to validate your account.',
         otpText: 'OTP',
       },
-      user: {
+      owner: {
         signupConfirmation: {
           subject: (name) => `ImmeDine - Confirmation as Candidate ${name}`,
           greeting: 'Hi',

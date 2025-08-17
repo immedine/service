@@ -13,7 +13,8 @@ module.exports = {
   },
   restaurant: {
     active: 1,
-    deleted: 2
+    deleted: 2,
+    unPublished: 3
   },
   language: {
     active: 1,

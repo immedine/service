@@ -76,20 +76,6 @@ module.exports = function (app, mongoose /*, plugins*/) {
           type: String,
           required: true,
         },
-        /**
-         * OTP object
-         */
-        otp: {
-          /**
-           * Code string
-           */
-          code: String,
-
-          /**
-           * Time at which OTP will become invalid
-           */
-          timeout: Date,
-        },
         link: {
           /**
            * Code string
@@ -97,7 +83,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
           token: String,
 
           /**
-           * Time at which OTP will become invalid
+           * Time at which Token will become invalid
            */
           timeout: Date,
         },
@@ -122,7 +108,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
       accountStatus: {
         type: Number,
         required: true,
-        default: app.config.user.accountStatus.restaurantOwner.active,
+        default: app.config.user.accountStatus.restaurantOwner.unverified,
       },
       /**
        * Settings
@@ -228,7 +214,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
    * @return {Promise}       The promise
    */
   restaurantOwnerSchema.statics.forgotPasswordCreateOTP = function (email) {
-    
+
     return this.findOne({
       'personalInfo.email': email,
       accountStatus: {
@@ -269,7 +255,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
               greeting: multilangConfig.email.forgotPassword.greeting,
               firstName: restaurantOwnerDoc.personalInfo.fullName,
               message: multilangConfig.email.forgotPassword.message,
-              resetPasswordLink: `http://localhost:3000/auth/verify-token?token=${restaurantOwnerDoc.authenticationInfo.link.token}`,
+              resetPasswordLink: `http://localhost:3000/auth/verify-token?token=${restaurantOwnerDoc.authenticationInfo.link.token}&type=reset`,
             },
             function (err, renderedText) {
               if (err) {
@@ -287,49 +273,67 @@ module.exports = function (app, mongoose /*, plugins*/) {
             }
           );
 
-          return Promise.resolve(restaurantOwnerDoc.authenticationInfo.otp);
+          return Promise.resolve({});
         });
       });
   };
 
-  restaurantOwnerSchema.statics.verifyToken = function (token) {
-    return this.findOne({
-      'authenticationInfo.link.token': token,
-      accountStatus: {
-        $ne: app.config.user.accountStatus.restaurantOwner.deleted,
-      },
-    })
-      .exec()
-      .then((restaurantOwnerDoc) =>
-        restaurantOwnerDoc
-          ? Promise.resolve(restaurantOwnerDoc)
-          : Promise.reject({
-            errCode: 'TOKEN_INVALID',
-          })
-      )
-      .then((restaurantOwnerDoc) => {
-        let savedToken = {
-          token: restaurantOwnerDoc.authenticationInfo.link.token,
-          timeout: restaurantOwnerDoc.authenticationInfo.link.timeout,
-        };
+  restaurantOwnerSchema.statics.verifyToken = function (token, type) {
+    if (type === 'reset' || type === 'registration') {
 
-        if (savedToken.timeout && new Date() < savedToken.timeout) {
-          if (savedToken.token === token) {
-            return Promise.resolve(restaurantOwnerDoc);
+      return this.findOne({
+        'authenticationInfo.link.token': token,
+        accountStatus: {
+          $ne: app.config.user.accountStatus.restaurantOwner.deleted,
+        },
+      })
+        .exec()
+        .then((restaurantOwnerDoc) =>
+          restaurantOwnerDoc
+            ? Promise.resolve(restaurantOwnerDoc)
+            : Promise.reject({
+              errCode: 'TOKEN_INVALID',
+            })
+        )
+        .then((restaurantOwnerDoc) => {
+          let savedToken = {
+            token: restaurantOwnerDoc.authenticationInfo.link.token,
+            timeout: restaurantOwnerDoc.authenticationInfo.link.timeout,
+          };
+
+          if (savedToken.timeout && new Date() < savedToken.timeout) {
+            if (savedToken.token === token) {
+              return Promise.resolve(restaurantOwnerDoc);
+            } else {
+              return Promise.reject({
+                errCode: 'TOKEN_INVALID',
+              });
+            }
           } else {
             return Promise.reject({
-              errCode: 'TOKEN_INVALID',
+              errCode: 'TOKEN_TIMEDOUT',
             });
           }
-        } else {
-          return Promise.reject({
-            errCode: 'TOKEN_TIMEDOUT',
-          });
-        }
-      })
-      .then((restaurantOwnerDoc) =>
-        Promise.resolve(restaurantOwnerDoc)
-      );
+        })
+        .then((restaurantOwnerDoc) => {
+          if (type === 'registration') {
+            // status change
+            restaurantOwnerDoc.accountStatus = app.config.user.accountStatus.restaurantOwner.active;
+            restaurantOwnerDoc.authenticationInfo = {
+              ...restaurantOwnerDoc.authenticationInfo,
+              link: {
+                token: ''
+              }
+            }
+            return restaurantOwnerDoc.save().then((userDoc) => {
+              return Promise.resolve(userDoc);
+            })
+          }
+        });
+    } else {
+      return Promise.reject({ err: 'Fake call' });
+    }
+
   };
 
   /**
@@ -424,12 +428,15 @@ module.exports = function (app, mongoose /*, plugins*/) {
         $ne: app.config.user.accountStatus.restaurantOwner.deleted,
       },
     })
-      .then((count) =>
-        count
-          ? Promise.reject({
+      .then((count) => {
+        if (count) {
+          return Promise.reject({
             errCode: 'RESTAURANT_OWNER_EMAIL_ALREADY_EXISTS',
           })
-          : Promise.resolve()
+        } else {
+          return Promise.resolve();
+        }
+      }
       )
       .then(() => {
         if (restaurantOwnerObj.from !== "signup") {
@@ -489,11 +496,40 @@ module.exports = function (app, mongoose /*, plugins*/) {
           })
             .then(({ password }) => {
               restaurantOwnerObj.authenticationInfo = {
-                password
+                password,
+                link: {
+                  token: app.utility.getRandomCode(20),
+                  timeout: new Date(new Date().getTime() + 10 * 60 * 1000),
+                }
               };
 
               return new this(restaurantOwnerObj).save().then((user) => {
-
+                let emailNotification = app.config.notification.email(app, app.config.lang.defaultLanguage),
+                  multilangConfig = app.config.lang[app.config.lang.defaultLanguage];
+                // create email template
+                app.render(
+                  emailNotification.userSignupRequest.pageName,
+                  {
+                    greeting: multilangConfig.email.userSignupRequest.greeting,
+                    firstName: user.personalInfo.fullName,
+                    message: multilangConfig.email.userSignupRequest.message,
+                    verificationLink: `http://localhost:3000/auth/verify-token?token=${user.authenticationInfo.link.token}&type=register`,
+                  },
+                  function (err, renderedText) {
+                    if (err) {
+                      console.log(err);
+                    } else {
+                      // send email
+                      app.service.notification.email.immediate({
+                        userId: user._id,
+                        userType: app.config.user.role.restaurantOwner,
+                        emailId: user.personalInfo.email,
+                        subject: emailNotification.userSignupRequest.subject,
+                        body: renderedText,
+                      });
+                    }
+                  }
+                );
                 return Promise.resolve(user);
               });
             });

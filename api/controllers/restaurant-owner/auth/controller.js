@@ -89,7 +89,8 @@ module.exports = function (app) {
   const signupRequest = (req, res, next) => {
     restaurant.create({
       name: req.body.restaurantDetails.name,
-      introductoryText: req.body.restaurantDetails.introductoryText
+      introductoryText: req.body.restaurantDetails.introductoryText,
+      status: app.config.contentManagement.restaurant.unPublished
     })
       .then((output) => {
         // req.workflow.outcome.data = output;
@@ -112,9 +113,20 @@ module.exports = function (app) {
   };
 
   const verifyToken = (req, res, next) => {
-    const {token} = req.query;
+    const {token} = req.body;
     restaurantOwner.auth
-      .verifyToken(token)
+      .verifyToken(token, 'reset')
+      .then((output) => {
+        req.workflow.outcome.data = app.utility.format.user(output);
+        req.workflow.emit('response');
+      })
+      .catch(next);
+  };
+
+  const verifyRegistrationToken = (req, res, next) => {
+    const {token} = req.body;
+    restaurantOwner.auth
+      .verifyToken(token, 'registration')
       .then((output) => {
         req.workflow.outcome.data = app.utility.format.user(output);
         req.workflow.emit('response');
@@ -129,6 +141,7 @@ module.exports = function (app) {
       verifyOTP: forgotPasswordVerifyOTP,
     },
     verifyToken: verifyToken,
+    verifyRegistrationToken: verifyRegistrationToken,
     signupRequest: signupRequest
   };
 };
