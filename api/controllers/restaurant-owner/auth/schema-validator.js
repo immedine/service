@@ -40,6 +40,31 @@ module.exports = function (app) {
     },
   };
 
+  const socialLogin = {
+    provider: {
+      type: 'string',
+      required: true,
+      allowEmpty: false,
+      enum: ['google'],
+    },
+    socialId: {
+      type: 'string',
+      required: true,
+      allowEmpty: false,
+    },
+    fullName: {
+      type: 'string',
+      allowEmpty: false,
+      required: true,
+    },
+    email: {
+      type: 'string',
+      required: true,
+      allowEmpty: false,
+      format: 'email',
+    },
+  };
+
   const signup = {
     ownerDetails: {
       firstName: {
@@ -83,6 +108,7 @@ module.exports = function (app) {
       requestOTP: forgotPasswordRequestOTP,
       verifyOTP: forgotPasswordVerifyOTP,
     },
-    signup: signup
+    signup: signup,
+    socialLogin
   };
 };

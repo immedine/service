@@ -55,9 +55,25 @@ module.exports = function (app) {
     return RestaurantOwner.verifyToken(token, type);
   };
 
+  const socialLogin = function (loginData) {
+    return RestaurantOwner.socialLoginValidate(
+      loginData.socialId,
+      loginData.socialType,
+      loginData.fullName,
+      loginData.email
+    ).then((output) => {
+      if (output.userDoc.accountStatus === app.config.user.accountStatus.restaurantOwner.blocked) {
+        return Promise.reject({ errCode: 'RESTAURANT_OWNER_BLOCKED' });
+      } else {
+        return Promise.resolve(output);
+      }
+    });
+  }
+
   return {
     login: login,
     verifyToken: verifyToken,
+    socialLogin,
     forgotPassword: {
       create: forgotPasswordCreateOTP,
       verify: forgotPasswordVerifyOTP,

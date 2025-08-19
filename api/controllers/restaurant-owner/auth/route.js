@@ -55,6 +55,8 @@ module.exports = function (app, options) {
     controllers.verifyRegistrationToken,
   ]);
 
+  router.post('/social-login', [options.validateBody(schemaValidator.socialLogin), controllers.socialLogin]);
+
   /**
    * Forgot Password verify OTP
    */

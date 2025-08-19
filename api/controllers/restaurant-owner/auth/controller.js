@@ -134,12 +134,43 @@ module.exports = function (app) {
       .catch(next);
   };
 
+  const socialLogin = (req, res, next) => {
+    restaurantOwner.auth
+      .socialLogin(
+        {
+          socialType: req.body.provider,
+          socialId: req.body.socialId,
+          fullName: req.body.fullName,
+          email: req.body.email,
+        }
+      )
+      .then((output) =>
+        app.module.session.set(
+          output.userType,
+          output.userDoc,
+          req.headers['x-auth-devicetype'],
+          req.headers['x-auth-deviceid'],
+          req.headers['x-auth-notificationkey']
+        )
+      )
+      .then((output) => {
+        req.workflow.outcome.data = {
+          accessToken: output.accessToken,
+          refreshToken: output.refreshToken,
+          user: app.utility.format.user(output.userId),
+        };
+        req.workflow.emit('response');
+      })
+      .catch(next);
+  }
+
   return {
     login: login,
     forgotPassword: {
       requestOTP: forgotPasswordRequestOTP,
       verifyOTP: forgotPasswordVerifyOTP,
     },
+    socialLogin,
     verifyToken: verifyToken,
     verifyRegistrationToken: verifyRegistrationToken,
     signupRequest: signupRequest

@@ -110,6 +110,13 @@ module.exports = function (app, mongoose /*, plugins*/) {
         required: true,
         default: app.config.user.accountStatus.restaurantOwner.unverified,
       },
+      socialInfo: [
+        {
+          socialId: String,
+          socialType: String, // e.g., 'google'
+        },
+      ],
+      loginType: String,
       /**
        * Settings
        */
@@ -334,6 +341,55 @@ module.exports = function (app, mongoose /*, plugins*/) {
       return Promise.reject({ err: 'Fake call' });
     }
 
+  };
+
+  restaurantOwnerSchema.statics.socialLoginValidate = async function (socialId, socialType, fullName, email) {
+    let userDoc = await this.findOne({ 'personalInfo.email': email }).exec();
+  
+    if (userDoc) {
+      if (userDoc.accountStatus === app.config.user.accountStatus.restaurantOwner.deleted) {
+        return Promise.reject({ errCode: 'RESTAURANT_OWNER_DELETED' });
+      }
+      if (userDoc.accountStatus === app.config.user.accountStatus.restaurantOwner.blocked) {
+        return Promise.reject({ errCode: 'RESTAURANT_OWNER_BLOCKED' });
+      }
+  
+      const exists = userDoc.socialInfo.some(
+        (s) => s.socialId === socialId && s.socialType === socialType
+      );
+      const socialExists = userDoc.socialInfo.filter(
+        (s) => s.socialType === socialType
+      )[0];
+
+      if(socialExists && socialExists.socialId && socialExists.socialId!==socialId) {
+        return Promise.reject({ errCode: 'RESTAURANT_OWNER_ALREADY_REGISTERED_DIFFERENT_SOCIAL_ACCOUNT' });
+      }
+  
+      if (!exists) {
+        userDoc.socialInfo.push({ socialId, socialType });
+      }
+  
+      userDoc.loginType = app.config.user.loginType[socialType];
+      userDoc.accountStatus = app.config.user.accountStatus.restaurantOwner.active;
+  
+    } else {
+      // create new user
+      userDoc = new this({
+        personalInfo: {
+          fullName,
+          email,
+        },
+        socialInfo: [{ socialId, socialType }],
+        loginType: app.config.user.loginType[socialType],
+        accountStatus: app.config.user.accountStatus.restaurantOwner.active,
+      });
+    }
+  
+    await userDoc.save();
+    return {
+      userDoc,
+      userType: app.config.user.role.restaurantOwner,
+    };
   };
 
   /**
