@@ -87,6 +87,8 @@ module.exports = function (app) {
   };
 
   const signupRequest = (req, res, next) => {
+    console.log("req.body ",req.body)
+    req.workflow.emit('response');
     restaurant.create({
       name: req.body.restaurantDetails.name,
       introductoryText: req.body.restaurantDetails.introductoryText,
@@ -94,7 +96,7 @@ module.exports = function (app) {
     })
       .then((output) => {
         // req.workflow.outcome.data = output;
-        restaurantOwner.crud.add({
+        const data = {
           personalInfo: {
             fullName: req.body.ownerDetails.fullName,
             phone: req.body.ownerDetails.phone,
@@ -103,7 +105,13 @@ module.exports = function (app) {
           },
           restaurantRef: output._id,
           from: 'signup'
-        })
+        };
+        if (req.body.socialId) {
+          data.socialInfo = [{ socialId: req.body.socialId, socialType: req.body.provider }];
+          data.loginType = app.config.user.loginType[req.body.provider];
+          data.accountStatus = app.config.user.accountStatus.restaurantOwner.active;
+        }
+        restaurantOwner.crud.add(data)
         .then(() => {
           req.workflow.emit('response');
         })
@@ -144,6 +152,14 @@ module.exports = function (app) {
           email: req.body.email,
         }
       )
+      .then((output) => {
+        if (output.message && output.message === "NEW_REGISTER") {
+          req.workflow.outcome.data = output;
+          req.workflow.emit('response');
+        } else {
+          return new Promise.resolve(output);
+        }
+      })
       .then((output) =>
         app.module.session.set(
           output.userType,

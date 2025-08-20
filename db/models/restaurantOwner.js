@@ -74,7 +74,6 @@ module.exports = function (app, mongoose /*, plugins*/) {
          */
         password: {
           type: String,
-          required: true,
         },
         link: {
           /**
@@ -191,15 +190,22 @@ module.exports = function (app, mongoose /*, plugins*/) {
             errCode: 'RESTAURANT_OWNER_NOT_FOUND',
           })
       )
-      .then((restaurantOwnerDoc) =>
-        app.utility.validatePassword(password, restaurantOwnerDoc.authenticationInfo.password).then((result) =>
-          result
-            ? Promise.resolve(restaurantOwnerDoc)
-            : Promise.reject({
-              errCode: 'PASSWORD_MISMATCH',
-            })
-        )
-      )
+      .then((restaurantOwnerDoc) => {
+        if (restaurantOwnerDoc.authenticationInfo.password) {
+          return app.utility.validatePassword(password, restaurantOwnerDoc.authenticationInfo.password).then((result) =>
+            result
+              ? Promise.resolve(restaurantOwnerDoc)
+              : Promise.reject({
+                errCode: 'PASSWORD_MISMATCH',
+              })
+          )
+        } else {
+          return Promise.reject({
+            errCode: 'RESTAURANT_OWNER_IS_SOCIAL_REGISTERED',
+          });
+        }
+
+      })
       .then((restaurantOwnerDoc) =>
         restaurantOwnerDoc.accountStatus !== app.config.user.accountStatus.restaurantOwner.blocked
           ? Promise.resolve(restaurantOwnerDoc)
@@ -345,7 +351,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
 
   restaurantOwnerSchema.statics.socialLoginValidate = async function (socialId, socialType, fullName, email) {
     let userDoc = await this.findOne({ 'personalInfo.email': email }).exec();
-  
+
     if (userDoc) {
       if (userDoc.accountStatus === app.config.user.accountStatus.restaurantOwner.deleted) {
         return Promise.reject({ errCode: 'RESTAURANT_OWNER_DELETED' });
@@ -353,7 +359,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
       if (userDoc.accountStatus === app.config.user.accountStatus.restaurantOwner.blocked) {
         return Promise.reject({ errCode: 'RESTAURANT_OWNER_BLOCKED' });
       }
-  
+
       const exists = userDoc.socialInfo.some(
         (s) => s.socialId === socialId && s.socialType === socialType
       );
@@ -361,35 +367,40 @@ module.exports = function (app, mongoose /*, plugins*/) {
         (s) => s.socialType === socialType
       )[0];
 
-      if(socialExists && socialExists.socialId && socialExists.socialId!==socialId) {
+      if (socialExists && socialExists.socialId && socialExists.socialId !== socialId) {
         return Promise.reject({ errCode: 'RESTAURANT_OWNER_ALREADY_REGISTERED_DIFFERENT_SOCIAL_ACCOUNT' });
       }
-  
+
       if (!exists) {
         userDoc.socialInfo.push({ socialId, socialType });
       }
-  
+
       userDoc.loginType = app.config.user.loginType[socialType];
       userDoc.accountStatus = app.config.user.accountStatus.restaurantOwner.active;
-  
+
+      await userDoc.save();
+      return {
+        userDoc,
+        userType: app.config.user.role.restaurantOwner,
+      };
+
     } else {
+      return {
+        message: 'NEW_REGISTER'
+      };
       // create new user
-      userDoc = new this({
-        personalInfo: {
-          fullName,
-          email,
-        },
-        socialInfo: [{ socialId, socialType }],
-        loginType: app.config.user.loginType[socialType],
-        accountStatus: app.config.user.accountStatus.restaurantOwner.active,
-      });
+      // userDoc = new this({
+      //   personalInfo: {
+      //     fullName,
+      //     email,
+      //   },
+      //   socialInfo: [{ socialId, socialType }],
+      //   loginType: app.config.user.loginType[socialType],
+      //   accountStatus: app.config.user.accountStatus.restaurantOwner.active,
+      // });
     }
-  
-    await userDoc.save();
-    return {
-      userDoc,
-      userType: app.config.user.role.restaurantOwner,
-    };
+
+
   };
 
   /**
@@ -545,50 +556,57 @@ module.exports = function (app, mongoose /*, plugins*/) {
               return Promise.resolve(updatedRestaurantOwnerObj);
             });
         } else {
-          return app.utility.encryptPassword(restaurantOwnerObj.personalInfo.password).then((encryptedPassword) => {
-            return Promise.resolve({
-              password: encryptedPassword,
+          if (restaurantOwnerObj.socialInfo) {
+            return new this(restaurantOwnerObj).save().then((user) => {
+              return Promise.resolve(user);
             });
-          })
-            .then(({ password }) => {
-              restaurantOwnerObj.authenticationInfo = {
-                password,
-                link: {
-                  token: app.utility.getRandomCode(20),
-                  timeout: new Date(new Date().getTime() + 10 * 60 * 1000),
-                }
-              };
-
-              return new this(restaurantOwnerObj).save().then((user) => {
-                let emailNotification = app.config.notification.email(app, app.config.lang.defaultLanguage),
-                  multilangConfig = app.config.lang[app.config.lang.defaultLanguage];
-                // create email template
-                app.render(
-                  emailNotification.userSignupRequest.pageName,
-                  {
-                    greeting: multilangConfig.email.userSignupRequest.greeting,
-                    firstName: user.personalInfo.fullName,
-                    message: multilangConfig.email.userSignupRequest.message,
-                    verificationLink: `http://localhost:3000/auth/verify-token?token=${user.authenticationInfo.link.token}&type=register`,
-                  },
-                  function (err, renderedText) {
-                    if (err) {
-                      console.log(err);
-                    } else {
-                      // send email
-                      app.service.notification.email.immediate({
-                        userId: user._id,
-                        userType: app.config.user.role.restaurantOwner,
-                        emailId: user.personalInfo.email,
-                        subject: emailNotification.userSignupRequest.subject,
-                        body: renderedText,
-                      });
-                    }
-                  }
-                );
-                return Promise.resolve(user);
+          } else {
+            return app.utility.encryptPassword(restaurantOwnerObj.personalInfo.password).then((encryptedPassword) => {
+              return Promise.resolve({
+                password: encryptedPassword,
               });
-            });
+            })
+              .then(({ password }) => {
+                restaurantOwnerObj.authenticationInfo = {
+                  password,
+                  link: {
+                    token: app.utility.getRandomCode(20),
+                    timeout: new Date(new Date().getTime() + 10 * 60 * 1000),
+                  }
+                };
+
+                return new this(restaurantOwnerObj).save().then((user) => {
+                  let emailNotification = app.config.notification.email(app, app.config.lang.defaultLanguage),
+                    multilangConfig = app.config.lang[app.config.lang.defaultLanguage];
+                  // create email template
+                  app.render(
+                    emailNotification.userSignupRequest.pageName,
+                    {
+                      greeting: multilangConfig.email.userSignupRequest.greeting,
+                      firstName: user.personalInfo.fullName,
+                      message: multilangConfig.email.userSignupRequest.message,
+                      verificationLink: `http://localhost:3000/auth/verify-token?token=${user.authenticationInfo.link.token}&type=register`,
+                    },
+                    function (err, renderedText) {
+                      if (err) {
+                        console.log(err);
+                      } else {
+                        // send email
+                        app.service.notification.email.immediate({
+                          userId: user._id,
+                          userType: app.config.user.role.restaurantOwner,
+                          emailId: user.personalInfo.email,
+                          subject: emailNotification.userSignupRequest.subject,
+                          body: renderedText,
+                        });
+                      }
+                    }
+                  );
+                  return Promise.resolve(user);
+                });
+              });
+          }
+
         }
 
       });

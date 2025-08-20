@@ -67,12 +67,7 @@ module.exports = function (app) {
 
   const signup = {
     ownerDetails: {
-      firstName: {
-        type: 'string',
-        allowEmpty: false,
-        required: true,
-      },
-      lastName: {
+      fullName: {
         type: 'string',
         allowEmpty: false,
         required: true,
@@ -84,9 +79,7 @@ module.exports = function (app) {
         format: 'email',
       },
       password: {
-        type: 'string',
-        required: true,
-        allowEmpty: false,
+        type: 'string'
       },
     },
     restaurantDetails: {

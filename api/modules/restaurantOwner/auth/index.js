@@ -62,6 +62,9 @@ module.exports = function (app) {
       loginData.fullName,
       loginData.email
     ).then((output) => {
+      if (output.message && output.message === "NEW_REGISTER") {
+        return Promise.resolve(output);
+      }
       if (output.userDoc.accountStatus === app.config.user.accountStatus.restaurantOwner.blocked) {
         return Promise.reject({ errCode: 'RESTAURANT_OWNER_BLOCKED' });
       } else {
