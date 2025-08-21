@@ -73,6 +73,10 @@ module.exports = function (app) {
     });
   }
 
+  const sendVerificationLink = ({ email }) => {
+    return RestaurantOwner.sendVerificationLink(email);
+  };
+
   return {
     login: login,
     verifyToken: verifyToken,
@@ -81,5 +85,6 @@ module.exports = function (app) {
       create: forgotPasswordCreateOTP,
       verify: forgotPasswordVerifyOTP,
     },
+    sendVerificationLink
   };
 };

@@ -168,6 +168,70 @@ module.exports = function (app, mongoose /*, plugins*/) {
   //   next();
   // });
 
+  restaurantOwnerSchema.statics.sendVerificationLink = function (email) {
+    return this.findOne({
+      'personalInfo.email': email,
+      accountStatus: {
+        $ne: app.config.user.accountStatus.user.deleted,
+      },
+    })
+      .exec()
+      .then((userDoc) =>
+        userDoc
+          ? Promise.resolve(userDoc)
+          : Promise.reject({
+              errCode: 'RESTAURANT_OWNER_NOT_FOUND',
+            })
+      )
+      .then((userDoc) =>
+        userDoc.accountStatus !== app.config.user.accountStatus.user.blocked
+          ? Promise.resolve(userDoc)
+          : Promise.reject({
+              errCode: 'RESTAURANT_OWNER_HAS_BEEN_SUSPENDED',
+            })
+      )
+      .then((restaurantOwnerDoc) => {
+        restaurantOwnerDoc.authenticationInfo.link = {
+          token: app.utility.getRandomCode(20),
+          timeout: new Date(new Date().getTime() + 10 * 60 * 1000),
+        };
+
+        return restaurantOwnerDoc.save().then((restaurantOwnerDoc) => {
+          ////////////////////////////////////////
+          //TODO: Send OTP for forgot password  //
+          ///////////////////////////////////////
+          let emailNotification = app.config.notification.email(app, app.config.lang.defaultLanguage),
+            multilangConfig = app.config.lang[app.config.lang.defaultLanguage];
+          // create email template
+          app.render(
+            emailNotification.sendVerificationLink.pageName,
+            {
+              greeting: multilangConfig.email.sendVerificationLink.greeting,
+              firstName: restaurantOwnerDoc.personalInfo.fullName,
+              message: multilangConfig.email.sendVerificationLink.message,
+              resendVerificationLink: `http://localhost:3000/auth/verify-token?token=${restaurantOwnerDoc.authenticationInfo.link.token}&type=register`,
+            },
+            function (err, renderedText) {
+              if (err) {
+                console.log(err);
+              } else {
+                // send email
+                app.service.notification.email.immediate({
+                  userId: restaurantOwnerDoc._id,
+                  userType: app.config.user.role.restaurantOwner,
+                  emailId: restaurantOwnerDoc.personalInfo.email,
+                  subject: emailNotification.sendVerificationLink.subject,
+                  body: renderedText,
+                });
+              }
+            }
+          );
+
+          return Promise.resolve({});
+        });
+      });
+  };
+
   /**
    * Custom login details validation
    * @param  {String} email    The email address

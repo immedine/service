@@ -180,6 +180,18 @@ module.exports = function (app) {
       .catch(next);
   }
 
+  const sendVerificationLink = (req, res, next) => {
+    restaurantOwner.auth
+      .sendVerificationLink(req.body)
+      .then((output) => {
+        if (process.env.NODE_ENV === 'development') {
+          req.workflow.outcome.data = output;
+        }
+        req.workflow.emit('response');
+      })
+      .catch(next);
+  };
+
   return {
     login: login,
     forgotPassword: {
@@ -189,6 +201,7 @@ module.exports = function (app) {
     socialLogin,
     verifyToken: verifyToken,
     verifyRegistrationToken: verifyRegistrationToken,
-    signupRequest: signupRequest
+    signupRequest: signupRequest,
+    sendVerificationLink
   };
 };

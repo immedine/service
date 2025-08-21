@@ -41,10 +41,17 @@ module.exports = {
           'You recently requested to reset your password for your ImmeDine account. Click on the button below to reset your password.',
         otpText: 'OTP',
       },
+      sendVerificationLink: {
+        subject: 'ImmeDine - Verify Account',
+        greeting: 'Hi',
+        message:
+          'You recently requested to send the verification link for your ImmeDine account. Click on the button below to verify your account.',
+        otpText: 'OTP',
+      },
       userSignupRequest: {
         subject: `ImmeDine - Signup Verification`,
         greeting: 'Hi',
-        message: 'You recently requested to signup for your ImmeDine account. Click on the button below to validate your account.',
+        message: 'You recently requested to signup for your ImmeDine account. Click on the button below to verify your account.',
         otpText: 'OTP',
       },
       owner: {

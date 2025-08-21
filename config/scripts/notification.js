@@ -41,6 +41,10 @@ module.exports = {
         subject: app.config.lang[selectedLang].email.forgotPassword.subject,
         pageName: 'forgot-password',
       },
+      sendVerificationLink: {
+        subject: app.config.lang[selectedLang].email.sendVerificationLink.subject,
+        pageName: 'send-verification-link',
+      },
       userSignupRequest:{
         subject: app.config.lang[selectedLang].email.userSignupRequest.subject,
         pageName: 'user-signup-otp',

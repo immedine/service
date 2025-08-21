@@ -95,6 +95,15 @@ module.exports = function (app) {
 
   };
 
+  const sendVerificationLink = {
+    email: {
+      type: 'string',
+      required: true,
+      allowEmpty: false,
+      format: 'email',
+    },
+  };
+
   return {
     login: login,
     forgotPassword: {
@@ -102,6 +111,7 @@ module.exports = function (app) {
       verifyOTP: forgotPasswordVerifyOTP,
     },
     signup: signup,
-    socialLogin
+    socialLogin,
+    sendVerificationLink
   };
 };
