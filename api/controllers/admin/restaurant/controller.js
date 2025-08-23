@@ -85,13 +85,13 @@ module.exports = function(app) {
    * @return {Promise}       The Promise
    */
   const editRestaurant = (req, res, next) => {
-    req.restaurantId.personalInfo = req.body.personalInfo;
-    req.restaurantId.roleInfo = req.body.roleInfo;
+    req.restaurantId.name = req.body.name || req.restaurantId.name;
+    req.restaurantId.introductoryText = req.body.introductoryText || req.restaurantId.introductoryText;
+    req.restaurantId.logo = req.body.logo || req.restaurantId.logo;
+    req.restaurantId.primaryColor = req.body.primaryColor || req.restaurantId.primaryColor;
+    req.restaurantId.secondaryColor = req.body.secondaryColor || req.restaurantId.secondaryColor;
+    req.restaurantId.status = req.body.status || req.restaurantId.status;
     restaurant.edit(req.restaurantId)
-      .then(output => {
-        return app.module.session.remove(req.restaurantId._id, app.config.user.role.admin)
-          .then(() => output);
-      })
       .then(output => {
         req.workflow.emit('response');
       })
@@ -106,7 +106,9 @@ module.exports = function(app) {
    * @return {Promise}       The Promise
    */
   const deleteRestaurant = (req, res, next) => {
-    restaurant.remove(req.restaurantId)
+    req.restaurantId.status = app.config.contentManagement.restaurant.deleted;
+
+    restaurant.edit(req.restaurantId)
       .then(output => {
         req.workflow.emit('response');
       })

@@ -8,6 +8,19 @@ module.exports = function(app) {
       allowEmpty: false,
       required: true
     },
+    introductoryText: {
+      type: 'string'
+    },
+    logo: {
+      type: 'string',
+      format: 'url',
+    },
+    primaryThmeColor: {
+      type: 'string'
+    },
+    secondaryThmeColor: {
+      type: 'string',
+    }
   };
 
   const listQuery = {
@@ -26,7 +39,7 @@ module.exports = function(app) {
   };
 
   const param = {
-    'restaurantUserId': {
+    'restaurantId': {
       type: 'string',
       required: true,
       'conform': function(value) {
