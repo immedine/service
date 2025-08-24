@@ -152,7 +152,8 @@ module.exports = function (app, opts) {
    */
   function storeImages(req, callback) {
     if (s3Util && options.useS3) {
-      let path = process.env.NODE_ENV === 'development' ? 'app/dev/' : 'app/prod/';
+      const customPath = req.body.path || "";
+      let path = process.env.NODE_ENV === 'development' ? `app/dev/${customPath ? `${customPath}/` : ''}` : 'app/prod/';
       return Promise.map(Object.keys(req.files), function (item) {
         return uploadFile({
           bucket: app.config.aws.s3.bucket,
