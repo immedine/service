@@ -128,6 +128,10 @@ module.exports = function (app, mongoose /*, plugins*/) {
           type: Number,
         },
       },
+      createdByAdmin: {
+        type: Boolean,
+        default: false
+      } ,
       /**
        * Session Information
        */
@@ -209,7 +213,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
               greeting: multilangConfig.email.sendVerificationLink.greeting,
               firstName: restaurantOwnerDoc.personalInfo.fullName,
               message: multilangConfig.email.sendVerificationLink.message,
-              resendVerificationLink: `http://localhost:3000/auth/verify-token?token=${restaurantOwnerDoc.authenticationInfo.link.token}&type=register`,
+              resendVerificationLink: `https://immedine.com/auth/verify-token?token=${restaurantOwnerDoc.authenticationInfo.link.token}&type=register`,
             },
             function (err, renderedText) {
               if (err) {
@@ -332,7 +336,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
               greeting: multilangConfig.email.forgotPassword.greeting,
               firstName: restaurantOwnerDoc.personalInfo.fullName,
               message: multilangConfig.email.forgotPassword.message,
-              resetPasswordLink: `http://localhost:3000/auth/verify-token?token=${restaurantOwnerDoc.authenticationInfo.link.token}&type=reset`,
+              resetPasswordLink: `https://immedine.com/auth/verify-token?token=${restaurantOwnerDoc.authenticationInfo.link.token}&type=reset`,
             },
             function (err, renderedText) {
               if (err) {
@@ -571,8 +575,8 @@ module.exports = function (app, mongoose /*, plugins*/) {
       )
       .then(() => {
         if (restaurantOwnerObj.from !== "signup") {
-          // let password = app.utility.getRandomCode(8, true);
-          let password = process.env.RESTAURANT_OWNER_DEFAULT_PASSWORD;
+          let password = app.utility.getRandomCode(8, true);
+          // let password = process.env.RESTAURANT_OWNER_DEFAULT_PASSWORD;
           return app.utility
             .encryptPassword(password)
             .then((password) => {
@@ -588,32 +592,33 @@ module.exports = function (app, mongoose /*, plugins*/) {
               let emailNotification = app.config.notification.email(app, app.config.lang.defaultLanguage),
                 multilangConfig = app.config.lang[app.config.lang.defaultLanguage];
               // create email template
-              // app.render(
-              //   emailNotification.restaurantOwnerAddedByRestaurantOwner.pageName,
-              //   {
-              //     greeting: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.greeting,
-              //     firstName: updatedRestaurantOwnerObj.personalInfo.firstName,
-              //     message: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.message,
-              //     emailText: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.emailText,
-              //     email: updatedRestaurantOwnerObj.personalInfo.email,
-              //     passwordText: multilangConfig.email.restaurantOwnerAddedByRestaurantOwner.passwordText,
-              //     password: password,
-              //   },
-              //   function (err, renderedText) {
-              //     if (err) {
-              //       console.log(err);
-              //     } else {
-              //       // send email
-              //       app.service.notification.email.immediate({
-              //         userId: updatedRestaurantOwnerObj._id,
-              //         userType: app.config.user.role.restaurantOwner,
-              //         emailId: updatedRestaurantOwnerObj.personalInfo.email,
-              //         subject: emailNotification.restaurantOwnerAddedByRestaurantOwner.subject,
-              //         body: renderedText,
-              //       });
-              //     }
-              //   }
-              // );
+              app.render(
+                emailNotification.restaurantOwnerAddedByAdmin.pageName,
+                {
+                  greeting: multilangConfig.email.restaurantOwnerAddedByAdmin.greeting,
+                  firstName: updatedRestaurantOwnerObj.personalInfo.fullName,
+                  message: multilangConfig.email.restaurantOwnerAddedByAdmin.message,
+                  emailText: multilangConfig.email.restaurantOwnerAddedByAdmin.emailText,
+                  email: updatedRestaurantOwnerObj.personalInfo.email,
+                  passwordText: multilangConfig.email.restaurantOwnerAddedByAdmin.passwordText,
+                  password: password,
+                  loginLink: 'https://immedine.com/auth/sign-in'
+                },
+                function (err, renderedText) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    // send email
+                    app.service.notification.email.immediate({
+                      userId: updatedRestaurantOwnerObj._id,
+                      userType: app.config.user.role.restaurantOwner,
+                      emailId: updatedRestaurantOwnerObj.personalInfo.email,
+                      subject: emailNotification.restaurantOwnerAddedByAdmin.subject,
+                      body: renderedText,
+                    });
+                  }
+                }
+              );
               ////////
               //End //
               ////////
@@ -649,7 +654,7 @@ module.exports = function (app, mongoose /*, plugins*/) {
                       greeting: multilangConfig.email.userSignupRequest.greeting,
                       firstName: user.personalInfo.fullName,
                       message: multilangConfig.email.userSignupRequest.message,
-                      verificationLink: `http://localhost:3000/auth/verify-token?token=${user.authenticationInfo.link.token}&type=register`,
+                      verificationLink: `https://immedine.com/auth/verify-token?token=${user.authenticationInfo.link.token}&type=register`,
                     },
                     function (err, renderedText) {
                       if (err) {

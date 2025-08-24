@@ -27,6 +27,7 @@ module.exports = function(app) {
    * @return {Promise}       The Promise
    */
   const addRestaurant = (req, res, next) => {
+    req.body.createdByAdmin = true;
     restaurant.create(req.body)
       .then(output => {
         req.workflow.emit('response');

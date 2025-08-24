@@ -27,6 +27,8 @@ module.exports = function(app) {
    * @return {Promise}       The Promise
    */
   const addRestaurantOwner = (req, res, next) => {
+    req.body.createdByAdmin = true;
+    req.body.accountStatus = app.config.user.accountStatus.restaurantOwner.active;
     restaurantOwner.crud.add(req.body)
       .then(output => {
         req.workflow.emit('response');
@@ -42,7 +44,7 @@ module.exports = function(app) {
    * @return {Promise}       The Promise
    */
   const getRestaurantOwner = (req, res, next) => {
-    restaurantOwner.get(req.restaurantOwnerId)
+    restaurantOwner.crud.get(req.restaurantOwnerId)
       .then(output => {
         req.workflow.outcome.data = output;
         req.workflow.emit('response');
@@ -65,25 +67,19 @@ module.exports = function(app) {
         accountStatus: {
           $ne: app.config.user.accountStatus.admin.deleted
         },
-        'roleInfo.isSuperAdmin': false
+        restaurantRef: req.body.filters.restaurantRef
       },
       sort: { createdAt: -1 },
-      populate: {
-        'path': 'roleInfo.roleId'
-      },
       keys: '-authenticationInfo'
     };
 
     if (req.body.filters) {
-      let { name, email, roleInfo } = req.body.filters;
+      let { name, email } = req.body.filters;
       if (name) {
         query.filters['personalInfo.fullName'] = new RegExp(`^${name}`, 'ig');
       }
       if (email) {
         query.filters['personalInfo.email'] = new RegExp(`^${email}`, 'ig');
-      }
-      if (roleInfo) {
-        query.filters.roleInfo = roleInfo;
       }
     }
     if (req.body.sortConfig) {
@@ -96,7 +92,7 @@ module.exports = function(app) {
       }
     }
 
-    restaurantOwner.list(query)
+    restaurantOwner.crud.list(query)
       .then(output => {
         req.workflow.outcome.data = output;
         req.workflow.emit('response');
@@ -114,7 +110,7 @@ module.exports = function(app) {
   const editRestaurantOwner = (req, res, next) => {
     req.restaurantOwnerId.personalInfo = req.body.personalInfo;
     req.restaurantOwnerId.roleInfo = req.body.roleInfo;
-    restaurantOwner.edit(req.restaurantOwnerId)
+    restaurantOwner.crud.edit(req.restaurantOwnerId)
       .then(output => {
         return app.module.session.remove(req.restaurantOwnerId._id, app.config.user.role.admin)
           .then(() => output);

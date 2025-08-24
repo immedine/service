@@ -54,6 +54,13 @@ module.exports = {
         message: 'You recently requested to signup for your ImmeDine account. Click on the button below to verify your account.',
         otpText: 'OTP',
       },
+      restaurantOwnerAddedByAdmin: {
+        subject: `ImmeDine - Owner Created`,
+        greeting: 'Hi',
+        message: 'You have been added as a Restaurant Owner for your restaurant in ImmeDine. To access your account please click on the button below and use below credentials to login.',
+        emailText: "Email",
+        passwordText: "Password",
+      },
       owner: {
         signupConfirmation: {
           subject: (name) => `ImmeDine - Confirmation as Candidate ${name}`,

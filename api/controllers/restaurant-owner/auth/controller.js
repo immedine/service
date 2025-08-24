@@ -87,8 +87,6 @@ module.exports = function (app) {
   };
 
   const signupRequest = (req, res, next) => {
-    console.log("req.body ",req.body)
-    req.workflow.emit('response');
     restaurant.create({
       name: req.body.restaurantDetails.name,
       introductoryText: req.body.restaurantDetails.introductoryText,

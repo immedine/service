@@ -20,7 +20,11 @@ module.exports = function(app, mongoose) {
     status: {
       type: Number,
       default: app.config.contentManagement.restaurant.active
-    }
+    },
+    createdByAdmin: {
+      type: Boolean,
+      default: false
+    } 
   }, {
     versionKey: false,
     timestamps: true,

@@ -49,6 +49,10 @@ module.exports = {
         subject: app.config.lang[selectedLang].email.userSignupRequest.subject,
         pageName: 'user-signup-otp',
       },
+      restaurantOwnerAddedByAdmin:{
+        subject: app.config.lang[selectedLang].email.restaurantOwnerAddedByAdmin.subject,
+        pageName: 'owner-added-by-admin',
+      },
       owner:{
         signupConfirmation:{
           subject: app.config.lang[selectedLang].email.owner.signupConfirmation.subject,

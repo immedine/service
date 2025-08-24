@@ -1,12 +1,12 @@
 'use strict';
 
-module.exports = function(app) {
+module.exports = function (app) {
 
   const addRestaurantOwner = {
     restaurantRef: {
       type: 'string',
       required: true,
-      'conform': function(value) {
+      'conform': function (value) {
         return app.utility.checkMongooseObjectId(value);
       }
     },
@@ -15,19 +15,11 @@ module.exports = function(app) {
       required: true,
       allowEmpty: false,
       properties: {
-        firstName: {
+        fullName: {
           type: 'string',
           required: true,
           allowEmpty: false,
-          conform: function(value) {
-            return app.utility.isValidate.isNameComponent(value);
-          }
-        },
-        lastName: {
-          type: 'string',
-          required: true,
-          allowEmpty: false,
-          conform: function(value) {
+          conform: function (value) {
             return app.utility.isValidate.isNameComponent(value);
           }
         },
@@ -39,36 +31,18 @@ module.exports = function(app) {
         }
       }
     },
-    // roleInfo: {
-    //   type: 'object',
-    //   required: true,
-    //   allowEmpty: false,
-    //   properties: {
-    //     isSuperRestaurantOwner: {
-    //       type: 'boolean',
-    //       required: true,
-    //       allowEmpty: false
-    //     },
-    //     roleId: {
-    //       type: 'string',
-    //       'conform': function(value) {
-    //         return app.utility.checkMongooseObjectId(value);
-    //       }
-    //     }
-    //   }
-    // }
   };
 
   const listQuery = {
     'skip': {
       type: 'string',
-      'conform': function(value) {
+      'conform': function (value) {
         return app.utility.isValidate.isNumber(value);
       }
     },
     'limit': {
       type: 'string',
-      'conform': function(value) {
+      'conform': function (value) {
         return app.utility.isValidate.isNumber(value);
       }
     }
@@ -78,7 +52,7 @@ module.exports = function(app) {
     'restaurantOwnerUserId': {
       type: 'string',
       required: true,
-      'conform': function(value) {
+      'conform': function (value) {
         return app.utility.checkMongooseObjectId(value);
       }
     }
@@ -105,6 +79,14 @@ module.exports = function(app) {
     'filters': {
       type: 'object',
       properties: {
+        'restaurantRef': {
+          type: 'string',
+          required: true,
+          allowEmpty: false,
+          'conform': function (value) {
+            return app.utility.checkMongooseObjectId(value);
+          }
+        },
         'name': {
           type: 'string',
           allowEmpty: false
@@ -117,7 +99,7 @@ module.exports = function(app) {
           'roleId': {
             type: 'string',
             allowEmpty: false,
-            'conform': function(value) {
+            'conform': function (value) {
               return app.utility.checkMongooseObjectId(value);
             }
           },
